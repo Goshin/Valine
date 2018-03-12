@@ -57,7 +57,7 @@ module.exports = env => {
 
         devServer: {
             hot: true,
-            port: 8088,
+            port: 18088,
             inline: true,
             progress: true,
             host: '0.0.0.0',

@@ -21,7 +21,7 @@
     "type": "git",
     "url": "git+https://github.com/xcss/Valine.git"
   },
-  "autoupdate":{
+  "autoupdate": {
     "source": "git",
     "target": "git://github.com/xcss/Valine.git",
     "fileMap": [
@@ -60,6 +60,7 @@
     "url-loader": "^0.6.2",
     "vconsole": "^3.0.0",
     "webpack": "^2.6.1",
-    "webpack-dev-server": "^2.4.5"
+    "webpack-dev-server": "^2.4.5",
+    "kinvey-html5-sdk": "^3.10.0"
   }
 }

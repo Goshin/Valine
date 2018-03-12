@@ -10,7 +10,7 @@ const gravatar = {
     cdn: 'https://gravatar.cat.net/avatar/',
     ds: ['mm', 'identicon', 'monsterid', 'wavatar', 'retro', ''],
     params: '?s=40',
-    hide: !1 
+    hide: !1
 };
 const defaultComment = {
     comment: '',
@@ -26,6 +26,7 @@ const defaultComment = {
 const GUEST_INFO = ['nick', 'mail', 'link'];
 
 const store = localStorage;
+
 class Valine {
     /**
      * Valine constructor function
@@ -113,20 +114,26 @@ class Valine {
             gravatar['params'] = '?d=' + (gravatar['ds'].indexOf(option.avatar) > -1 ? option.avatar : 'mm');
             gravatar['hide'] = option.avatar === 'hide' ? !0 : !1;
 
-            let av = option.av || AV;
-            let appId = option.app_id || option.appId;
+            let av = option.av || Kinvey;
+            let appSecret = option.app_secret || option.appSecret;
             let appKey = option.app_key || option.appKey;
-            if (!appId || !appKey) {
+            if (!appSecret || !appKey) {
                 _root.loading.hide();
                 throw '初始化失败，请检查你的appid或者appkey.';
                 return;
             }
             av.applicationId = null;
             av.init({
-                appId: appId,
-                appKey: appKey
+                appKey: appKey,
+                appSecret: appSecret,
+            });
+            av.ping().then(function (response) {
+                console.log('Kinvey Ping Success. Kinvey Service is alive, version: ' + response.version + ', response: ' + response.kinvey);
+            }).catch(function (error) {
+                console.log('Kinvey Ping Failed. Response: ' + error.description);
             });
             _root.v = av;
+            _root.dataStore = av.DataStore.collection('comments', av.DataStoreType.network);
             defaultComment.url = (option.path || location.pathname).replace(/index\.(html|htm)/, '');
 
         } catch (ex) {
@@ -194,9 +201,9 @@ class Valine {
         }
 
         let commonQuery = (cb) => {
-            let query = new _root.v.Query('Comment');
+            let query = new _root.v.Query();
             query.equalTo('url', defaultComment['url']);
-            query.descending('createdAt');
+            query.descending('_kmd.ect');
             return query;
         }
         // let initPages = (cb) => {
@@ -212,21 +219,22 @@ class Valine {
         let query = (pageNo = 1) => {
             _root.loading.show();
             let cq = commonQuery();
-            cq.limit('1000');
-            cq.find().then(rets => {
-                let len = rets.length;
+            cq.limit = 1000;
+            var stream = _root.dataStore.find(cq);
+            stream.subscribe(entities => {
+                let len = entities.length;
                 if (len) {
                     _root.el.querySelector('.vlist').innerHTML = '';
                     for (let i = 0; i < len; i++) {
-                        insertDom(rets[i], !0)
+                        insertDom(entities[i], !0)
                     }
                     _root.el.querySelector('.count').innerHTML = `评论(<span class="num">${len}</span>)`;
                 }
                 _root.loading.hide();
-            }).catch(ex => {
-                //err(ex)
+            }, error => {
                 _root.loading.hide();
-            })
+            }, () => {
+            });
         }
         query();
 
@@ -234,9 +242,12 @@ class Valine {
 
             let _vcard = document.createElement('li');
             _vcard.setAttribute('class', 'vcard');
-            _vcard.setAttribute('id', ret.id);
-            let _img = gravatar['hide'] ? '' : `<img class="vimg" src='${gravatar.cdn + md5(ret.get('mail') || ret.get('nick')) + gravatar.params}'>`;
-            _vcard.innerHTML = `${_img}<section><div class="vhead"><a rel="nofollow" href="${getLink({ link: ret.get('link'), mail: ret.get('mail') })}" target="_blank" >${ret.get("nick")}</a></div><div class="vcontent">${ret.get("comment")}</div><div class="vfooter"><span class="vtime">${timeAgo(ret.get("createdAt"))}</span><span rid='${ret.id}' at='@${ret.get('nick')}' mail='${ret.get('mail')}' class="vat">回复</span><div></section>`;
+            _vcard.setAttribute('id', ret._id);
+            let _img = gravatar['hide'] ? '' : `<img class="vimg" src='${gravatar.cdn + md5(ret['mail'] || ret['nick']) + gravatar.params}'>`;
+            _vcard.innerHTML = `${_img}<section><div class="vhead"><a rel="nofollow" href="${getLink({
+                link: ret['link'],
+                mail: ret['mail']
+            })}" target="_blank" >${ret["nick"]}</a></div><div class="vcontent">${ret["comment"]}</div><div class="vfooter"><span class="vtime">${timeAgo(new Date(ret._kmd.ect))}</span><span rid='${ret._id}' at='@${ret['nick']}' mail='${ret['mail']}' class="vat">回复</span><div></section>`;
             let _vlist = _root.el.querySelector('.vlist');
             let _vlis = _vlist.querySelectorAll('li');
             let _vat = _vcard.querySelector('.vat');
@@ -270,7 +281,7 @@ class Valine {
                 let _el = _root.el.querySelector(`.${i}`);
                 inputs[_v] = _el;
                 Event.on('input', _el, (e) => {
-                    defaultComment[_v] = _v === 'comment' ? marked(_el.value, { sanitize: !0 }) : HtmlUtil.encode(_el.value);
+                    defaultComment[_v] = _v === 'comment' ? marked(_el.value, {sanitize: !0}) : HtmlUtil.encode(_el.value);
                 });
             }
         }
@@ -289,7 +300,6 @@ class Valine {
             }
         }
         getCache();
-
 
 
         let atData = {
@@ -339,7 +349,7 @@ class Valine {
                 let at = `<a class="at" href='#${defaultComment.rid}'>${atData.at}</a>`;
                 defaultComment.comment = defaultComment.comment.replace(atData.at, at);
             }
-            // veirfy
+            // verify
             let mailRet = check.mail(defaultComment.mail);
             let linkRet = check.link(defaultComment.link);
             defaultComment['mail'] = mailRet.k ? mailRet.v : '';
@@ -389,29 +399,28 @@ class Valine {
             }
         }
 
-        // setting access
-        let getAcl = () => {
-            let acl = new _root.v.ACL();
-            acl.setPublicReadAccess(!0);
-            acl.setPublicWriteAccess(!1);
-            return acl;
-        }
-
         let commitEvt = () => {
             submitBtn.setAttribute('disabled', !0);
             _root.loading.show();
+
+            if (!_root.v.User.getActiveUser()) {
+                _root.v.User.signup().then(commitEvt);
+                return;
+            }
+
             // 声明类型
-            let Ct = _root.v.Object.extend('Comment');
             // 新建对象
-            let comment = new Ct();
+            let comment = {};
             for (let i in defaultComment) {
                 if (defaultComment.hasOwnProperty(i)) {
                     let _v = defaultComment[i];
-                    comment.set(i, _v);
+                    comment[i] = _v;
                 }
             }
-            comment.setACL(getAcl());
-            comment.save().then((ret) => {
+            let acl = new _root.v.Acl(comment);
+            acl.globallyReadable = true;
+            acl.globallyWritable = false;
+            _root.dataStore.save(comment).then((ret) => {
                 defaultComment['nick'] != 'Guest' && store && store.setItem('ValineCache', JSON.stringify({
                     nick: defaultComment['nick'],
                     link: defaultComment['link'],
@@ -429,22 +438,13 @@ class Valine {
                     }
                     insertDom(ret);
 
-                    defaultComment['mail'] && signUp({
-                        username: defaultComment['nick'],
-                        mail: defaultComment['mail']
-                    });
-
-                    atData['at'] && atData['rmail'] && _root.notify && mailEvt({
-                        username: atData['at'].replace('@', ''),
-                        mail: atData['rmail']
-                    });
                     submitBtn.removeAttribute('disabled');
                     _root.loading.hide();
                     reset();
                 } catch (error) {
                     console.log(error)
                 }
-            }).catch(ex => {
+            }).catch(() => {
                 _root.loading.hide();
             })
         }
@@ -484,32 +484,6 @@ class Valine {
             })
         }
 
-        let signUp = (o) => {
-            let u = new _root.v.User();
-            u.setUsername(o.username);
-            u.setPassword(o.mail);
-            u.setEmail(o.mail);
-            u.setACL(getAcl());
-            return u.signUp();
-        }
-
-        let mailEvt = (o) => {
-            _root.v.User.requestPasswordReset(o.mail).then(ret => { }).catch(e => {
-                if (e.code == 1) {
-                    _root.alert.show({
-                        type: 0,
-                        text: `ヾ(ｏ･ω･)ﾉ At太频繁啦，提醒功能暂时宕机。<br>${e.error}`,
-                        ctxt: '好的'
-                    })
-                } else {
-                    signUp(o).then(ret => {
-                        mailEvt(o);
-                    }).catch(x => {
-                        //err(x)
-                    })
-                }
-            })
-        }
 
         // at event
         let bindAtEvt = (el) => {
@@ -532,6 +506,7 @@ class Valine {
     }
 
 }
+
 // const loadAV = (cb) => {
 //     let avjs = document.createElement('script');　　　
 //     let _doc = document.querySelector('head');　
@@ -577,8 +552,6 @@ const Event = {
     //     e.stopPropagation && e.stopPropagation() || (e.cancelBubble = !0);
     // }
 }
-
-
 
 
 const getLink = (target) => {
