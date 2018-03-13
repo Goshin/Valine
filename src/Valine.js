@@ -7,6 +7,9 @@
 import md5 from 'blueimp-md5';
 import marked from 'marked';
 import hljs from './common/highlight.js';
+import * as xss from 'xss';
+import * as xssEscape from 'xss-filters';
+
 marked.setOptions({
     gfm: true,
     tables: true,
@@ -19,6 +22,19 @@ marked.setOptions({
         return hljs.highlightAuto(code).value
     }
 });
+const commentXssWhiteList = Object.assign({}, xss.getDefaultWhiteList(), {
+    a: ['href', 'class'],
+    /* for code highlighting */
+    span: ['class'],
+    code: ['class', 'codemark'],
+    pre: ['class', 'style'],
+    p: ['class'],
+    br: ['class']
+});
+const contentFilterXss = new xss.FilterXSS({
+    whiteList: commentXssWhiteList,
+});
+
 const gravatar = {
     cdn: 'https://gravatar.cat.net/avatar/',
     ds: ['mm', 'identicon', 'monsterid', 'wavatar', 'retro', ''],
@@ -258,10 +274,10 @@ class Valine {
             _vcard.setAttribute('class', 'vcard');
             _vcard.setAttribute('id', ret._id);
             let _img = gravatar['hide'] ? '' : `<img class="vimg" src='${gravatar.cdn + md5(ret['mail'] || ret['nick']) + gravatar.params}'>`;
-            _vcard.innerHTML = `${_img}<section><div class="vhead"><a rel="nofollow" href="${getLink({
+            _vcard.innerHTML = `${_img}<section><div class="vhead"><a rel="nofollow" href="${xssEscape.uriInDoubleQuotedAttr(getLink({
                 link: ret['link'],
                 mail: ret['mail']
-            })}" target="_blank" >${ret["nick"]}</a> · <span class="vtime">${timeAgo(new Date(ret._kmd.ect))}</span></div><div class="vcontent">${ret["comment"]}</div><div class="vfooter"><span rid='${ret._id}' at='@${ret['nick']}' mail='${ret['mail']}' class="vat">回复</span><div></section>`;
+            }))}" target="_blank" >${xssEscape.inHTMLData(ret["nick"])}</a> · <span class="vtime">${timeAgo(new Date(ret._kmd.ect))}</span></div><div class="vcontent">${contentFilterXss.process(ret["comment"])}</div><div class="vfooter"><span rid='${xssEscape.inSingleQuotedAttr(ret._id)}' at='@${xssEscape.inSingleQuotedAttr(ret['nick'])}' mail='${xssEscape.inSingleQuotedAttr(ret['mail'])}' class="vat">回复</span><div></section>`;
             let _vlist = _root.el.querySelector('.vlist');
             let _vlis = _vlist.querySelectorAll('li');
             let _vat = _vcard.querySelector('.vat');
