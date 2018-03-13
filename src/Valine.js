@@ -6,11 +6,26 @@
  */
 import md5 from 'blueimp-md5';
 import marked from 'marked';
+import * as xss from 'xss';
+import * as xssEscape from 'xss-filters';
+
+const commentXssWhiteList = Object.assign({}, xss.getDefaultWhiteList(), {
+    a: ['href', 'class'],
+    /* for code highlighting */
+    span: ['class'],
+    code: ['class', 'codemark'],
+    pre: ['class', 'style'],
+    p: ['class'],
+    br: ['class']
+});
+const contentFilterXss = new xss.FilterXSS({
+    whiteList: commentXssWhiteList,
+});
 const gravatar = {
     cdn: 'https://gravatar.cat.net/avatar/',
     ds: ['mm', 'identicon', 'monsterid', 'wavatar', 'retro', ''],
     params: '?s=40',
-    hide: !1 
+    hide: !1
 };
 const defaultComment = {
     comment: '',
@@ -236,7 +251,7 @@ class Valine {
             _vcard.setAttribute('class', 'vcard');
             _vcard.setAttribute('id', ret.id);
             let _img = gravatar['hide'] ? '' : `<img class="vimg" src='${gravatar.cdn + md5(ret.get('mail') || ret.get('nick')) + gravatar.params}'>`;
-            _vcard.innerHTML = `${_img}<section><div class="vhead"><a rel="nofollow" href="${getLink({ link: ret.get('link'), mail: ret.get('mail') })}" target="_blank" >${ret.get("nick")}</a></div><div class="vcontent">${ret.get("comment")}</div><div class="vfooter"><span class="vtime">${timeAgo(ret.get("createdAt"))}</span><span rid='${ret.id}' at='@${ret.get('nick')}' mail='${ret.get('mail')}' class="vat">回复</span><div></section>`;
+            _vcard.innerHTML = `${_img}<section><div class="vhead"><a rel="nofollow" href="${xssEscape.uriInDoubleQuotedAttr(getLink({ link: ret.get('link'), mail: ret.get('mail') }))}" target="_blank" >${xssEscape.inHTMLData(ret.get("nick"))}</a></div><div class="vcontent">${contentFilterXss.process(ret.get("comment"))}</div><div class="vfooter"><span class="vtime">${timeAgo(ret.get("createdAt"))}</span><span rid='${xssEscape.inSingleQuotedAttr(ret.id)}' at='@${xssEscape.inSingleQuotedAttr(ret.get('nick'))}' mail='${xssEscape.inSingleQuotedAttr(ret.get('mail'))}' class="vat">回复</span><div></section>`;
             let _vlist = _root.el.querySelector('.vlist');
             let _vlis = _vlist.querySelectorAll('li');
             let _vat = _vcard.querySelector('.vat');
