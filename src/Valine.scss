@@ -61,7 +61,7 @@
                 display:inline-block;
                 font-size:.725rem;
                 vertical-align: middle;
-                color:#ccc;
+                color:#586069;
                 &.text-right{
                     text-align:right;
                 }
@@ -180,7 +180,6 @@
         border-radius: 1.9rem;
         background-color: #f7f7f7;
         display: inline-block;
-        background: #ededed;
         margin-bottom: 0;
         font-weight: 400;
         vertical-align: middle;
@@ -222,7 +221,7 @@
                 width:2.5rem;
                 height:2.5rem;
                 float: left;
-                border-radius: 50%;
+                border-radius: 3px;
                 margin-right: .7525rem;
             }
             .vhead {
@@ -232,11 +231,15 @@
                 a {
                     font-size: .8135rem;
                     font-weight: 700;
-                    color: rgb(44, 32, 32);
-                    margin-right:.875rem;
+                    color: #030303;
                     &:hover {
-                        color: #D7191A;
+                        color: #8a8a8a;
                     }
+                }
+                .vtime {
+                    color: #b3b3b3;
+                    font-size: .75rem;
+                    margin-right:.875rem;
                 }
             }
             section {
@@ -245,15 +248,14 @@
                 border-bottom:1px solid #f5f5f5;
                 .vfooter{
                     position:relative;
-                    .vtime {
-                        color: #b3b3b3;
-                        font-size: .75rem;
-                        margin-right:.875rem;
-                    }
                     .vat {
                         font-size: .8125rem;
-                        color: #ef2f11;
+                        color: #495060;
                         cursor: pointer;
+                        transition: color .2s ease;
+                        &:hover {
+                        color: #8a8a8a;
+                    }
                     }
                 }
             }
@@ -271,8 +273,12 @@
                     color:#708090;
                     text-decoration: double;
                     &:hover{
-                        color:#D7191A;
+                        color:#8a8a8a;
                     }
+                }
+                pre {
+                    border: 1px solid #ddd;
+                    border-radius: 3px;
                 }
                 pre,
                 .code,
@@ -281,9 +287,8 @@
                     padding: 2px 6px;
                     word-wrap: break-word;
                     color: #555;
-                    background: #f5f2f2;
-                    border-radius: 3px;
-                    font-size: .875rem;
+                    line-height: 20px;
+                    font-size: 1em;
                     margin: 5px 0;
                 }
                 &.expand {
@@ -303,7 +308,6 @@
                     }
                     &:after {
                         display: block;
-                        content: "Click on expand";
                         text-align: center;
                         color: #828586;
                         position: absolute;
@@ -314,6 +318,12 @@
                         bottom: 0;
                         pointer-events: none;
                         background: rgba(255, 255, 255, .9);
+                    }
+                    &.en:after {
+                        content: "Show full content";
+                    }
+                    &.zh:after {
+                        content: "点击显示全部";
                     }
                 }
             }

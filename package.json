@@ -62,5 +62,8 @@
     "webpack": "^2.6.1",
     "webpack-dev-server": "^2.4.5",
     "kinvey-html5-sdk": "^3.10.0"
+  },
+  "dependencies": {
+    "highlight.js": "^9.12.0"
   }
 }
