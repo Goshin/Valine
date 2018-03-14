@@ -78,13 +78,13 @@ class Valine {
             const inputEl = guest_info.map(item => {
                 switch (item) {
                     case 'nick':
-                        return '<input name="nick" placeholder="称呼" class="vnick vinput" type="text">';
+                        return '<input name="nick" placeholder="Name" class="vnick vinput" type="text">';
                         break;
                     case 'mail':
-                        return '<input name="mail" placeholder="邮箱" class="vmail vinput" type="email">';
+                        return '<input name="mail" placeholder="Email" class="vmail vinput" type="email">';
                         break;
                     case 'link':
-                        return '<input name="link" placeholder="网址(http://)" class="vlink vinput" type="text">';
+                        return '<input name="link" placeholder="Website (Optional)" class="vlink vinput" type="text">';
                         break;
                     default:
                         return '';
@@ -92,15 +92,15 @@ class Valine {
                 }
             });
 
-            let placeholder = option.placeholder || '';
-            let eleHTML = `<div class="vwrap"><div class="${`vheader item${inputEl.length}`}">${inputEl.join('')}</div><div class="vedit"><textarea class="veditor vinput" placeholder="${placeholder}"></textarea></div><div class="vcontrol"><div class="col col-60" title="Styling with Markdown is supported"><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M14.85 3H1.15C.52 3 0 3.52 0 4.15v7.69C0 12.48.52 13 1.15 13h13.69c.64 0 1.15-.52 1.15-1.15v-7.7C16 3.52 15.48 3 14.85 3zM9 11H7V8L5.5 9.92 4 8v3H2V5h2l1.5 2L7 5h2v6zm2.99.5L9.5 8H11V5h2v3h1.5l-2.51 3.5z"></path></svg> Styling with Markdown is supported</div><div class="col col-40 text-right"><button type="button" class="vsubmit vbtn">回复</button></div></div><div style="display:none;" class="vmark"></div></div><div class="info"><div class="count col"></div></div><div class="vloading"></div><div class="vempty" style="display:none;"></div><ul class="vlist"></ul><div class="vpage txt-center"></div><div class="info"><div class="power txt-right">Powered By <a href="http://valine.js.org" target="_blank">Valine-v${_root.version}</a></div></div>`;
+            let placeholder = option.placeholder || 'Leave a comment';
+            let eleHTML = `<div class="vwrap"><div class="${`vheader item${inputEl.length}`}">${inputEl.join('')}</div><div class="vedit"><textarea class="veditor vinput" placeholder="${placeholder}"></textarea></div><div class="vcontrol"><div class="col col-60" title="Styling with Markdown is supported"><svg aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M14.85 3H1.15C.52 3 0 3.52 0 4.15v7.69C0 12.48.52 13 1.15 13h13.69c.64 0 1.15-.52 1.15-1.15v-7.7C16 3.52 15.48 3 14.85 3zM9 11H7V8L5.5 9.92 4 8v3H2V5h2l1.5 2L7 5h2v6zm2.99.5L9.5 8H11V5h2v3h1.5l-2.51 3.5z"></path></svg> Styling with Markdown is supported</div><div class="col col-40 text-right"><button type="button" class="vsubmit vbtn">Post</button></div></div><div style="display:none;" class="vmark"></div></div><div class="info"><div class="count col"></div></div><div class="vloading"></div><div class="vempty" style="display:none;"></div><ul class="vlist"></ul><div class="vpage txt-center"></div><div class="info"><div class="power txt-right">Powered By <a href="" target="_blank">Valine-v${_root.version}</a></div></div>`;
             _root.el.innerHTML = eleHTML;
 
             // Empty Data
             let vempty = _root.el.querySelector('.vempty');
             _root.nodata = {
                 show(txt) {
-                    vempty.innerHTML = txt || `还没有评论哦，快来抢沙发吧!`;
+                    vempty.innerHTML = txt || `Post the first comment!`;
                     vempty.setAttribute('style', 'display:block;');
                 },
                 hide() {
@@ -136,7 +136,7 @@ class Valine {
             let appKey = option.app_key || option.appKey;
             if (!appSecret || !appKey) {
                 _root.loading.hide();
-                throw '初始化失败，请检查你的appid或者appkey.';
+                throw 'Initialization failed, check your App key and App secret';
                 return;
             }
             av.applicationId = null;
@@ -155,7 +155,7 @@ class Valine {
 
         } catch (ex) {
             let issue = 'https://github.com/xCss/Valine/issues';
-            if (_root.el) _root.nodata.show(`<pre style="color:red;text-align:left;">${ex}<br>Valine:<b>${_root.version}</b><br>反馈：${issue}</pre>`);
+            if (_root.el) _root.nodata.show(`<pre style="color:red;text-align:left;">${ex}<br>Valine:<b>${_root.version}</b><br>Report：${issue}</pre>`);
             else console && console.log(`%c${ex}\n%cValine%c${_root.version} ${issue}`, 'color:red;', 'background:#000;padding:5px;line-height:30px;color:#fff;', 'background:#456;line-height:30px;padding:5px;color:#fff;');
             return;
         }
@@ -177,8 +177,8 @@ class Valine {
             show(o) {
                 _mark.innerHTML = `<div class="valert txt-center"><div class="vtext">${o.text}</div><div class="vbtns"></div></div>`;
                 let _vbtns = _mark.querySelector('.vbtns');
-                let _cBtn = `<button class="vcancel vbtn">${o && o.ctxt || '我再看看'}</button>`;
-                let _oBtn = `<button class="vsure vbtn">${o && o.otxt || '继续提交'}</button>`;
+                let _cBtn = `<button class="vcancel vbtn">${o && o.ctxt || 'Check Again'}</button>`;
+                let _oBtn = `<button class="vsure vbtn">${o && o.otxt || 'Continue'}</button>`;
                 _vbtns.innerHTML = `${_cBtn}${o.type && _oBtn}`;
                 _mark.querySelector('.vcancel').addEventListener('click', function (e) {
                     _root.alert.hide();
@@ -246,7 +246,7 @@ class Valine {
                     for (let i = 0; i < len; i++) {
                         insertDom(entities[i], !0)
                     }
-                    _root.el.querySelector('.count').innerHTML = `评论(<span class="num">${len}</span>)`;
+                    _root.el.querySelector('.count').innerHTML = `${len} Comment${len > 1 ? 's' : ''}`;
                 }
                 _root.loading.hide();
             }, error => {
@@ -265,7 +265,7 @@ class Valine {
             _vcard.innerHTML = `${_img}<section><div class="vhead"><a rel="nofollow" href="${xssEscape.uriInDoubleQuotedAttr(getLink({
                 link: ret['link'],
                 mail: ret['mail']
-            }))}" target="_blank" >${xssEscape.inHTMLData(ret["nick"])}</a> · <span class="vtime">${timeago().format(new Date(ret._kmd.ect))}</span></div><div class="vcontent">${marked(ret["comment"])}</div><div class="vfooter"><span rid='${xssEscape.inSingleQuotedAttr(ret._id)}' at='@${xssEscape.inSingleQuotedAttr(ret['nick'])}' mail='${xssEscape.inSingleQuotedAttr(ret['mail'])}' class="vat">回复</span><div></section>`;
+            }))}" target="_blank" >${xssEscape.inHTMLData(ret["nick"])}</a> · <span class="vtime">${timeago().format(new Date(ret._kmd.ect))}</span></div><div class="vcontent">${marked(ret["comment"])}</div><div class="vfooter"><span rid='${xssEscape.inSingleQuotedAttr(ret._id)}' at='@${xssEscape.inSingleQuotedAttr(ret['nick'])}' mail='${xssEscape.inSingleQuotedAttr(ret['mail'])}' class="vat">Reply</span><div></section>`;
             let _vlist = _root.el.querySelector('.vlist');
             let _vlis = _vlist.querySelectorAll('li');
             let _vat = _vcard.querySelector('.vat');
@@ -350,8 +350,8 @@ class Valine {
             if (submitBtn.getAttribute('disabled')) {
                 _root.alert.show({
                     type: 0,
-                    text: '再等等，评论正在提交中ヾ(๑╹◡╹)ﾉ"',
-                    ctxt: '好的'
+                    text: 'The request is still pending.',
+                    ctxt: 'Wait'
                 })
                 return;
             }
@@ -360,7 +360,7 @@ class Valine {
                 return;
             }
             if (defaultComment.nick == '') {
-                defaultComment['nick'] = '小调皮';
+                defaultComment['nick'] = 'Anonymous';
             }
             let idx = defaultComment.comment.indexOf(atData.at);
             if (idx > -1 && atData.at != '') {
@@ -375,7 +375,7 @@ class Valine {
             if (!mailRet.k && !linkRet.k && guest_info.indexOf('mail') > -1 && guest_info.indexOf('link') > -1) {
                 _root.alert.show({
                     type: 1,
-                    text: '您的网址和邮箱格式不正确, 是否继续提交?',
+                    text: 'Invalid site and email. Do you want to continue?',
                     cb() {
                         if (_root.notify || _root.verify) {
                             verifyEvt(commitEvt)
@@ -387,7 +387,7 @@ class Valine {
             } else if (!mailRet.k && guest_info.indexOf('mail') > -1) {
                 _root.alert.show({
                     type: 1,
-                    text: '您的邮箱格式不正确, 是否继续提交?',
+                    text: 'Invalid email. Do you want to continue?',
                     cb() {
                         if (_root.notify || _root.verify) {
                             verifyEvt(commitEvt)
@@ -399,7 +399,7 @@ class Valine {
             } else if (!linkRet.k && guest_info.indexOf('link') > -1) {
                 _root.alert.show({
                     type: 1,
-                    text: '您的网址格式不正确, 是否继续提交?',
+                    text: 'Invalid site. Do you want to continue?',
                     cb() {
                         if (_root.notify || _root.verify) {
                             verifyEvt(commitEvt)
@@ -452,7 +452,7 @@ class Valine {
                         num = Number(_count.innerText) + 1;
                         _count.innerText = num;
                     } else {
-                        _root.el.querySelector('.count').innerHTML = '评论(<span class="num">1</span>)'
+                        _root.el.querySelector('.count').innerHTML = '1 Comment'
                     }
                     insertDom(ret);
 
