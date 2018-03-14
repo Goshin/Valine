@@ -8,6 +8,7 @@ import md5 from 'blueimp-md5';
 import marked from 'marked';
 import hljs from './common/highlight.js';
 import * as xssEscape from 'xss-filters';
+import timeago from 'timeago.js';
 
 marked.setOptions({
     gfm: true,
@@ -264,7 +265,7 @@ class Valine {
             _vcard.innerHTML = `${_img}<section><div class="vhead"><a rel="nofollow" href="${xssEscape.uriInDoubleQuotedAttr(getLink({
                 link: ret['link'],
                 mail: ret['mail']
-            }))}" target="_blank" >${xssEscape.inHTMLData(ret["nick"])}</a> · <span class="vtime">${timeAgo(new Date(ret._kmd.ect))}</span></div><div class="vcontent">${marked(ret["comment"])}</div><div class="vfooter"><span rid='${xssEscape.inSingleQuotedAttr(ret._id)}' at='@${xssEscape.inSingleQuotedAttr(ret['nick'])}' mail='${xssEscape.inSingleQuotedAttr(ret['mail'])}' class="vat">回复</span><div></section>`;
+            }))}" target="_blank" >${xssEscape.inHTMLData(ret["nick"])}</a> · <span class="vtime">${timeago().format(new Date(ret._kmd.ect))}</span></div><div class="vcontent">${marked(ret["comment"])}</div><div class="vfooter"><span rid='${xssEscape.inSingleQuotedAttr(ret._id)}' at='@${xssEscape.inSingleQuotedAttr(ret['nick'])}' mail='${xssEscape.inSingleQuotedAttr(ret['mail'])}' class="vat">回复</span><div></section>`;
             let _vlist = _root.el.querySelector('.vlist');
             let _vlis = _vlist.querySelectorAll('li');
             let _vat = _vcard.querySelector('.vat');
@@ -298,7 +299,7 @@ class Valine {
                 let _el = _root.el.querySelector(`.${i}`);
                 inputs[_v] = _el;
                 Event.on('input', _el, (e) => {
-                    defaultComment[_v] = _v === 'comment' ? _el.value : HtmlUtil.encode(_el.value);
+                    defaultComment[_v] = _v === 'comment' ? _el.value : xssEscape.inHTMLData(xssEscape.inDoubleQuotedAttr(_el.value));
                 });
             }
         }
@@ -589,93 +590,6 @@ const check = {
             v: l
         };
     }
-}
-
-const HtmlUtil = {
-
-    // /**
-    //  *
-    //  * 将str中的链接转换成a标签形式
-    //  * @param {String} str
-    //  * @returns
-    //  */
-    // transUrl(str) {
-    //     let reg = /(http:\/\/|https:\/\/)((\w|=|\?|\.|\/|&|-)+)/g;
-    //     return str.replace(reg, '<a target="_blank" href="$1$2">$1$2</a>');
-    // },
-    /**
-     * HTML转码
-     * @param {String} str
-     * @return {String} result
-     */
-    encode(str) {
-        return !!str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/ /g, "&nbsp;").replace(/\'/g, "&#39;").replace(/\"/g, "&quot;") : '';
-    },
-    /**
-     * HTML解码
-     * @param {String} str
-     * @return {String} result
-     */
-    decode(str) {
-        return !!str ? str.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ").replace(/&#39;/g, "\'").replace(/&quot;/g, "\"") : '';
-    }
-};
-
-const dateFormat = (date) => {
-    var vDay = padWithZeros(date.getDate(), 2);
-    var vMonth = padWithZeros(date.getMonth() + 1, 2);
-    var vYear = padWithZeros(date.getFullYear(), 2);
-    // var vHour = padWithZeros(date.getHours(), 2);
-    // var vMinute = padWithZeros(date.getMinutes(), 2);
-    // var vSecond = padWithZeros(date.getSeconds(), 2);
-    return `${vYear}-${vMonth}-${vDay}`;
-}
-
-const timeAgo = (date) => {
-    try {
-        var oldTime = date.getTime();
-        var currTime = new Date().getTime();
-        var diffValue = currTime - oldTime;
-
-        var days = Math.floor(diffValue / (24 * 3600 * 1000));
-        if (days === 0) {
-            //计算相差小时数
-            var leave1 = diffValue % (24 * 3600 * 1000); //计算天数后剩余的毫秒数
-            var hours = Math.floor(leave1 / (3600 * 1000));
-            if (hours === 0) {
-                //计算相差分钟数
-                var leave2 = leave1 % (3600 * 1000); //计算小时数后剩余的毫秒数
-                var minutes = Math.floor(leave2 / (60 * 1000));
-                if (minutes === 0) {
-                    //计算相差秒数
-                    var leave3 = leave2 % (60 * 1000); //计算分钟数后剩余的毫秒数
-                    var seconds = Math.round(leave3 / 1000);
-                    return seconds + ' 秒前';
-                }
-                return minutes + ' 分钟前';
-            }
-            return hours + ' 小时前';
-        }
-        if (days < 0) return '刚刚';
-
-        if (days < 8) {
-            return days + ' 天前';
-        } else {
-            return dateFormat(date)
-        }
-    } catch (error) {
-        console.log(error)
-    }
-
-
-}
-
-const padWithZeros = (vNumber, width) => {
-    var numAsString = vNumber.toString();
-    while (numAsString.length < width) {
-        numAsString = '0' + numAsString;
-    }
-    return numAsString;
 }
 
 module.exports = Valine;
