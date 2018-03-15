@@ -24,7 +24,7 @@ marked.setOptions({
 });
 
 const gravatar = {
-    cdn: 'https://gravatar.cat.net/avatar/',
+    cdn: 'https://cdn.v2ex.com/gravatar/',
     ds: ['mm', 'identicon', 'monsterid', 'wavatar', 'retro', ''],
     params: '?s=40',
     hide: !1
@@ -265,7 +265,7 @@ class Valine {
             _vcard.innerHTML = `${_img}<section><div class="vhead"><a rel="nofollow" href="${xssEscape.uriInDoubleQuotedAttr(getLink({
                 link: ret['link'],
                 mail: ret['mail']
-            }))}" target="_blank" >${xssEscape.inHTMLData(ret["nick"])}</a> · <span class="vtime">${timeago().format(new Date(ret._kmd.ect))}</span></div><div class="vcontent">${marked(ret["comment"])}</div><div class="vfooter"><span rid='${xssEscape.inSingleQuotedAttr(ret._id)}' at='@${xssEscape.inSingleQuotedAttr(ret['nick'])}' mail='${xssEscape.inSingleQuotedAttr(ret['mail'])}' class="vat">Reply</span><div></section>`;
+            })) || 'javascript:void(0);'}" target="_blank" >${xssEscape.inHTMLData(ret["nick"])}</a> · <span class="vtime">${timeago().format(new Date(ret._kmd.ect))}</span></div><div class="vcontent">${marked(ret["comment"])}</div><div class="vfooter"><span rid='${xssEscape.inSingleQuotedAttr(ret._id)}' at='@${xssEscape.inSingleQuotedAttr(ret['nick'])}' mail='${xssEscape.inSingleQuotedAttr(ret['mail'])}' class="vat">Reply</span><div></section>`;
             let _vlist = _root.el.querySelector('.vlist');
             let _vlis = _vlist.querySelectorAll('li');
             let _vat = _vcard.querySelector('.vat');
@@ -576,7 +576,7 @@ const Event = {
 
 
 const getLink = (target) => {
-    return target.link || (target.mail && `mailto:${target.mail}`) || 'javascript:void(0);';
+    return target.link || '';
 }
 
 const check = {
