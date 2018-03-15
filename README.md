@@ -24,7 +24,7 @@
     }
 
 </script>
-<script src="//cdn.jsdelivr.net/gh/Goshin/Valine-Kinvey@k-1.0.0/dist/Valine-loader.min.js"></script>
+<script src="//cdn.jsdelivr.net/gh/Goshin/Valine-Kinvey@k-1.0.1/dist/Valine-loader.min.js"></script>
 ```
 
 ## License

@@ -9,7 +9,7 @@
     /* https://github.com/xCss/Valine/issues/49 */
     const urls = [
         `//cdn.jsdelivr.net/gh/Kinvey/html5-sdk@3.10.0/kinvey-html5-sdk.min.js`,
-        `//cdn.jsdelivr.net/gh/Goshin/Valine-Kinvey@k-1.0.0/dist/Valine.min.js`
+        `//cdn.jsdelivr.net/gh/Goshin/Valine-Kinvey@k-1.0.1/dist/Valine.min.js`
     ];
     const asyncLoader = url =>
         new Promise((resolve, reject) => {

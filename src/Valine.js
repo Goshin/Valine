@@ -370,9 +370,9 @@ class Valine {
             // verify
             let mailRet = check.mail(defaultComment.mail);
             let linkRet = check.link(defaultComment.link);
-            defaultComment['mail'] = mailRet.k ? mailRet.v : '';
-            defaultComment['link'] = linkRet.k ? linkRet.v : '';
-            if (!mailRet.k && !linkRet.k && guest_info.indexOf('mail') > -1 && guest_info.indexOf('link') > -1) {
+            defaultComment['mail'] = mailRet.k ? mailRet.v : defaultComment['mail'];
+            defaultComment['link'] = linkRet.k ? linkRet.v : defaultComment['link'];
+            if (defaultComment['mail'] && defaultComment['link'] && !mailRet.k && !linkRet.k && guest_info.indexOf('mail') > -1 && guest_info.indexOf('link') > -1) {
                 _root.alert.show({
                     type: 1,
                     text: 'Invalid site and email. Do you want to continue?',
@@ -380,11 +380,12 @@ class Valine {
                         if (_root.notify || _root.verify) {
                             verifyEvt(commitEvt)
                         } else {
+                            defaultComment['mail'] = defaultComment['link'] = "";
                             commitEvt();
                         }
                     }
                 })
-            } else if (!mailRet.k && guest_info.indexOf('mail') > -1) {
+            } else if (defaultComment['mail'] && !mailRet.k && guest_info.indexOf('mail') > -1) {
                 _root.alert.show({
                     type: 1,
                     text: 'Invalid email. Do you want to continue?',
@@ -392,11 +393,12 @@ class Valine {
                         if (_root.notify || _root.verify) {
                             verifyEvt(commitEvt)
                         } else {
+                            defaultComment['mail'] = "";
                             commitEvt();
                         }
                     }
                 })
-            } else if (!linkRet.k && guest_info.indexOf('link') > -1) {
+            } else if (defaultComment['link'] && !linkRet.k && guest_info.indexOf('link') > -1) {
                 _root.alert.show({
                     type: 1,
                     text: 'Invalid site. Do you want to continue?',
@@ -404,6 +406,7 @@ class Valine {
                         if (_root.notify || _root.verify) {
                             verifyEvt(commitEvt)
                         } else {
+                            defaultComment['link'] = "";
                             commitEvt();
                         }
                     }
