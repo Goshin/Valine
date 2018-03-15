@@ -1,0 +1,32 @@
+.loading-valine {
+  -webkit-animation: twinkling 3s infinite ease-in-out;
+  animation: twinkling 3s infinite ease-in-out;
+  color: #666666;
+  font-size: 1.2em;
+  margin: 1.5em;
+  text-align: center;
+}
+
+@-webkit-keyframes twinkling {
+  0% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.1;
+  }
+}
+
+@keyframes twinkling {
+  0% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.1;
+  }
+}

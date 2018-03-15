@@ -6,10 +6,26 @@
 
 ## Features
 - Kinvey BaaS Backend.
+- More Secure Rendering.
+- Async loader.
 - Code Highlight in Comments.
 - Style Tweaks.
-- More Secure Rendering.
 
+## Usage
+
+```html
+<div class="comment"></div>
+<script>
+    window.VALINECONFIG = {
+        el: '.comment',
+        app_secret: 'your app secret',
+        app_key: 'your app key',
+        path: window.location.pathname,
+    }
+
+</script>
+<script src="//cdn.jsdelivr.net/gh/Goshin/Valine-Kinvey/dist/Valine-loader.min.js"></script>
+```
 
 ## License
 GPL-2.0
